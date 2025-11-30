@@ -1,25 +1,14 @@
 /*
- * SPI_TxRx_Arduino_Interrupt_F429ZI.c
+ * STM32F429ZI 透過 SPI1 以中斷模式與 Arduino 通訊
+ * Arduino 傳送資料後會拉高 PD0，觸發 STM32 讀取
  *
- * 描述：
- *   STM32F429ZI 透過 SPI1 以中斷模式與 Arduino 通訊
- *   Arduino 傳送資料後會拉高 PD0，觸發 STM32 讀取
- *
- * 硬體連接：
  *   STM32F429ZI (Master) <--> Arduino (Slave)
  *   - PA5 (SPI1_SCK)   -> Arduino SCK
  *   - PA6 (SPI1_MISO)  <- Arduino MISO
  *   - PA7 (SPI1_MOSI)  -> Arduino MOSI
  *   - PA4 (SPI1_NSS)   -> Arduino SS
  *   - PD0 (GPIO)       <- Arduino Data Available 中斷信號
- *   - PC13 (USER BTN)  : 板載按鈕（可用於其他功能）
- *
- * 注意：
- *   1. 在 Arduino 上傳 003SPISlaveUartReadOverSPI.ino
- *   2. 重置兩塊板子
- *   3. 啟用 SWV ITM data console 查看接收到的訊息
- *   4. 在 Arduino IDE Serial Monitor 輸入訊息並發送
- *      （確保 line ending 設定為 carriage return）
+ *   - PC13 (USER BTN)  : 按鈕
  */
 
 #include <stdio.h>
@@ -48,18 +37,13 @@ void delay(void)
 
 
 /* ==================== SPI1 GPIO 初始化 ==================== */
-/*****************************************************************
- * @brief  配置 SPI1 的 GPIO 引腳
- * @note   PA5 -> SCK, PA6 -> MISO, PA7 -> MOSI, PA4 -> NSS
- *         複用功能 AF5
- *****************************************************************/
 void SPI1_GPIOInits(void)
 {
     GPIO_Handle_t SPIPins;
 
     SPIPins.pGPIOx = GPIOA;
     SPIPins.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_ALTFN;
-    SPIPins.GPIO_PinConfig.GPIO_PinAltFunMode = 5;          /* AF5 for SPI1 */
+    SPIPins.GPIO_PinConfig.GPIO_PinAltFunMode = 5;          
     SPIPins.GPIO_PinConfig.GPIO_PinOPType = GPIO_OP_TYPE_PP;
     SPIPins.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_PIN_PU;
     SPIPins.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_HIGH;
@@ -83,35 +67,23 @@ void SPI1_GPIOInits(void)
 
 
 /* ==================== SPI1 初始化 ==================== */
-/*****************************************************************
- * @brief  配置 SPI1 外設參數
- * @note   - Master 模式
- *         - 全雙工
- *         - 8-bit 數據格式
- *         - CPOL=0, CPHA=0
- *         - 硬體 NSS 管理
- *****************************************************************/
+
 void SPI1_Inits(void)
 {
     SPI1Handle.pSPIx = SPI1;
     SPI1Handle.SPIConfig.SPI_BusConfig = SPI_BUS_CONFIG_FD;
     SPI1Handle.SPIConfig.SPI_DeviceMode = SPI_DEVICE_MODE_MASTER;
-    SPI1Handle.SPIConfig.SPI_SclkSpeed = SPI_SCLK_SPEED_DIV32;  /* 根據需求調整 */
+    SPI1Handle.SPIConfig.SPI_SclkSpeed = SPI_SCLK_SPEED_DIV32;  
     SPI1Handle.SPIConfig.SPI_DFF = SPI_DFF_8BITS;
     SPI1Handle.SPIConfig.SPI_CPOL = SPI_CPOL_LOW;
     SPI1Handle.SPIConfig.SPI_CPHA = SPI_CPHA_LOW;
-    SPI1Handle.SPIConfig.SPI_SSM = SPI_SSM_DI;  /* 硬體 NSS 管理 */
+    SPI1Handle.SPIConfig.SPI_SSM = SPI_SSM_DI;  
 
     SPI_Init(&SPI1Handle);
 }
 
 
 /* ==================== Arduino Data Available 中斷引腳初始化 ==================== */
-/*****************************************************************
- * @brief  配置 PD0 為 Arduino data available 中斷輸入
- * @note   - Arduino 準備好資料後會拉高此引腳
- *         - 上升沿觸發中斷
- *****************************************************************/
 void Slave_GPIO_InterruptPinInit(void)
 {
     GPIO_Handle_t spiIntPin;
@@ -119,7 +91,7 @@ void Slave_GPIO_InterruptPinInit(void)
 
     spiIntPin.pGPIOx = GPIOD;
     spiIntPin.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_0;
-    spiIntPin.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_IT_RT;  /* 上升沿觸發 */
+    spiIntPin.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_IT_RT;  
     spiIntPin.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_LOW;
     spiIntPin.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_PIN_PU;
 
@@ -143,7 +115,7 @@ int main(void)
     SPI_SSOEConfig(SPI1, ENABLE);
 
     printf("Start... \n");
-    // 不需要啟用 SPI 中斷
+
     // SPI_IRQInterruptConfig(IRQ_NO_SPI1, ENABLE);
 
     while(1)
