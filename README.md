@@ -5,6 +5,7 @@
 ## 所需工具與環境
 **STM32 Nucleo-F429ZI Development Board**：Cotex M0/M3/M4 皆可以使用測試 \
 **Logic Level Converter-Bi-Directional 雙向邏輯電平轉換模組**：用於 STM32(3.3v) 和 Arduino(5v) 之間的電平轉換 \
+**Usb 邏輯分析儀 24MHz 8 通道** \
 **DS1307 RTC 實時時鐘模組** \
 **LCD1602 顯示模組** \
 **STM32CubeIDE**：編譯、燒錄與除錯環境 
