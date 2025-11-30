@@ -1,0 +1,7 @@
+../Src/013_rtc_lcd.c:8:7:get_day_of_week	56	static
+../Src/013_rtc_lcd.c:15:6:number_to_string	16	static
+../Src/013_rtc_lcd.c:30:7:time_to_string	16	static
+../Src/013_rtc_lcd.c:47:7:date_to_string	16	static
+../Src/013_rtc_lcd.c:64:6:InitSystickTimer	32	static
+../Src/013_rtc_lcd.c:88:6:SysTick_Handler	32	static
+../Src/013_rtc_lcd.c:121:5:main	32	static

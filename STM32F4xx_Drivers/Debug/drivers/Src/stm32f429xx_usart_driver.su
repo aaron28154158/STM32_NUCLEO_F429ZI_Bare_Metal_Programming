@@ -1,0 +1,10 @@
+../drivers/Src/stm32f429xx_usart_driver.c:4:6:USART_Init	24	static
+../drivers/Src/stm32f429xx_usart_driver.c:78:6:USART_DeInit	16	static
+../drivers/Src/stm32f429xx_usart_driver.c:106:6:USART_PeriClockControl	16	static
+../drivers/Src/stm32f429xx_usart_driver.c:166:6:USART_SendData	32	static
+../drivers/Src/stm32f429xx_usart_driver.c:214:6:USART_IRQInterruptConfig	24	static
+../drivers/Src/stm32f429xx_usart_driver.c:253:6:USART_IRQPriorityConfig	24	static
+../drivers/Src/stm32f429xx_usart_driver.c:265:6:USART_PeripheralControl	16	static
+../drivers/Src/stm32f429xx_usart_driver.c:279:9:USART_GetFlagStatus	16	static
+../drivers/Src/stm32f429xx_usart_driver.c:289:6:USART_ClearFlag	16	static
+../drivers/Src/stm32f429xx_usart_driver.c:295:6:USART_SetBaudRate	40	static
