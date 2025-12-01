@@ -3,14 +3,16 @@
 
 #include "stm32f429xx.h"
 
+/* ==================== I2C 引腳配置 ==================== */
 #define DS1307_I2C              I2C1
 #define DS1307_I2C_GPIO_PORT    GPIOB
 #define DS1307_I2C1_SCL_PIN     GPIO_PIN_NO_8
 #define DS1307_I2C1_SDA_PIN     GPIO_PIN_NO_9
-#define DS1307_I2C_SPEED        I2C_SCL_SPEED_SM
+#define DS1307_I2C_SPEED        I2C_SCL_SPEED_SM    /* DS1307 只支援標準速度模式 */
 #define DS1307_I2C_PUPD         GPIO_PIN_PU
 
 
+/* ==================== Timekeeper 暫存器記憶體位址 ==================== */
 #define DS1307_ADDR_SEC         0x00
 #define DS1307_ADDR_MIN         0x01
 #define DS1307_ADDR_HRS         0x02
@@ -19,12 +21,16 @@
 #define DS1307_ADDR_MONTH       0x05
 #define DS1307_ADDR_YEAR        0x06
 
+
+/* ==================== 時間格式巨集定義 ==================== */
 #define TIME_FORMAT_12HRS_AM    0
 #define TIME_FORMAT_12HRS_PM    1
 #define TIME_FORMAT_24HRS       2
 
 #define DS1307_I2C_ADDRESS      0x68
 
+
+/* ==================== 日期巨集定義 ==================== */
 #define SUNDAY      1
 #define MONDAY      2
 #define TUESDAY     3
@@ -34,7 +40,7 @@
 #define SATURDAY    7
 
 
-
+/* ==================== RTC日期結構體定義 ==================== */
 typedef struct
 {
     uint8_t date;
@@ -43,6 +49,8 @@ typedef struct
     uint8_t day;
 }RTC_date_t;
 
+
+/* ==================== RTC時間結構體定義 ==================== */
 typedef struct
 {
     uint8_t seconds;
@@ -52,12 +60,21 @@ typedef struct
 }RTC_time_t;
 
 
+/* ==================== API 函式 ==================== */
 
+/* ==================== 1. 初始化 DS1307 RTC ==================== */
 uint8_t ds1307_init(void);
+
+/* ==================== 2. 設定當前時間 ==================== */
 void ds1307_set_current_time(RTC_time_t *);
+
+/* ==================== 3. 讀取當前時間 ==================== */
 void ds1307_get_current_time(RTC_time_t *);
 
+/* ==================== 4. 設定當前日期 ==================== */
 void ds1307_set_current_date(RTC_date_t *);
+
+/* ==================== 5. 讀取當前日期 ==================== */
 void ds1307_get_current_date(RTC_date_t *);
 
 #endif
