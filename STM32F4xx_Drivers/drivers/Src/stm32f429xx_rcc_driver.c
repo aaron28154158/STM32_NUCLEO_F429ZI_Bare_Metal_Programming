@@ -9,17 +9,13 @@ uint16_t APB_PreScaler[4]  = {2, 4, 8, 16};
  * @brief  取得 APB1 周邊時脈頻率 (PCLK1)
  * @param  None
  * @return uint32_t: PCLK1 頻率（單位：Hz）
- * @note   時脈路徑：System Clock → AHB Prescaler → APB1 Prescaler → PCLK1
- *         - System Clock 來源：HSI (16MHz) / HSE (8MHz) / PLL
- *         - AHB  分頻：1, 2, 4, 8, 16, 64, 128, 256, 512
- *         - APB1 分頻：1, 2, 4, 8, 16
  *****************************************************************/
 uint32_t RCC_GetPCLK1Value(void)
 {
 	uint32_t pclk1, systemClock;
 	uint8_t temp, ahbPrescaler, apb1Prescaler;
 
-	/* ==================== 1. 讀取系統時脈源 ==================== */
+	/* ==================== 1. 讀取系統時脈來源 ==================== */
 	/* RCC_CFGR[3:2] SWS: System clock switch status
 	 * 00: HSI oscillator (16 MHz)
 	 * 01: HSE oscillator (8 MHz)
@@ -43,7 +39,7 @@ uint32_t RCC_GetPCLK1Value(void)
 
 	/* ==================== 2. 計算 AHB 分頻係數 ==================== */
 	/* RCC_CFGR[7:4] HPRE: AHB prescaler
-	 * 0xxx: system clock not divided  (AHB = SYSCLK)
+	 * 0xxx: system clock not divided  
 	 * 1000: system clock divided by 2
 	 * 1001: system clock divided by 4
 	 * 1010: system clock divided by 8
@@ -64,7 +60,7 @@ uint32_t RCC_GetPCLK1Value(void)
 
 	/* ==================== 3. 計算 APB1 分頻係數 ==================== */
 	/* RCC_CFGR[12:10] PPRE1: APB Low-speed prescaler (APB1)
-	 * 0xx: AHB clock not divided  (APB1 = HCLK)
+	 * 0xx: AHB clock not divided  
 	 * 100: AHB clock divided by 2
 	 * 101: AHB clock divided by 4
 	 * 110: AHB clock divided by 8
@@ -82,11 +78,7 @@ uint32_t RCC_GetPCLK1Value(void)
 		apb1Prescaler = APB_PreScaler[temp - 4];
 	}
 
-	/* ==================== 4. 計算最終 PCLK1 頻率 ==================== */
-	/* PCLK1 = SYSCLK / AHB_Prescaler / APB1_Prescaler
-	 * 範例：SYSCLK = 16MHz, AHB = /1, APB1 = /1
-	 *        PCLK1 = 16MHz / 1 / 1 = 16MHz
-	 */
+	/* ==================== 4. 計算 PCLK1 頻率 ==================== */
 	pclk1 = (systemClock / ahbPrescaler) / apb1Prescaler;
 
 	return pclk1;
@@ -97,10 +89,6 @@ uint32_t RCC_GetPCLK1Value(void)
  * @brief  取得 APB2 周邊時脈頻率 (PCLK2)
  * @param  None
  * @return uint32_t: PCLK2 頻率（單位：Hz）
- * @note   時脈路徑：System Clock → AHB Prescaler → APB2 Prescaler → PCLK2
- *         - System Clock 來源：HSI (16MHz) / HSE (8MHz) / PLL
- *         - AHB  分頻：1, 2, 4, 8, 16, 64, 128, 256, 512
- *         - APB2 分頻：1, 2, 4, 8, 16
  *****************************************************************/
 uint32_t RCC_GetPCLK2Value(void)
 {
@@ -131,7 +119,7 @@ uint32_t RCC_GetPCLK2Value(void)
 
 	/* ==================== 2. 計算 AHB 分頻係數 ==================== */
 	/* RCC_CFGR[7:4] HPRE: AHB prescaler
-	 * 0xxx: system clock not divided  (AHB = SYSCLK)
+	 * 0xxx: system clock not divided  
 	 * 1000: system clock divided by 2
 	 * 1001: system clock divided by 4
 	 * 1010: system clock divided by 8
@@ -146,13 +134,13 @@ uint32_t RCC_GetPCLK2Value(void)
 	}
 	else
 	{
-		/* temp = 8~15 對應到分頻係數 2, 4, 8, ..., 512 */
+		/* temp = 8 ~ 15 對應到分頻係數 2, 4, 8, ..., 512 */
 		ahbPrescaler = AHB_PreScaler[temp - 8];
 	}
 
 	/* ==================== 3. 計算 APB2 分頻係數 ==================== */
-	/* RCC_CFGR[15:13] PPRE2: APB high-speed prescaler (APB2)
-	 * 0xx: AHB clock not divided  (APB2 = HCLK)
+	/* RCC_CFGR[15:13] PPRE2: APB high-speed prescaler
+	 * 0xx: AHB clock not divided  
 	 * 100: AHB clock divided by 2
 	 * 101: AHB clock divided by 4
 	 * 110: AHB clock divided by 8
@@ -170,11 +158,7 @@ uint32_t RCC_GetPCLK2Value(void)
 		apb2Prescaler = APB_PreScaler[temp - 4];
 	}
 
-	/* ==================== 4. 計算最終 PCLK2 頻率 ==================== */
-	/* PCLK2 = SYSCLK / AHB_Prescaler / APB2_Prescaler
-	 * 範例：SYSCLK = 16MHz, AHB = /1, APB2 = /1
-	 *        PCLK2 = 16MHz / 1 / 1 = 16MHz
-	 */
+	/* ==================== 4. 計算 PCLK2 頻率 ==================== */
 	pclk2 = (systemClock / ahbPrescaler) / apb2Prescaler;
 
 	return pclk2;
