@@ -1,12 +1,12 @@
 #include "stm32f429xx.h"
 
-/* ==================== SPI1 引腳配置（無衝突）==================== */
+/* ==================== SPI1 引腳配置 ==================== */
 /*
 *   Alternate Function Mode : AF05
-*   SPI1_NSS  : PA4  (無衝突)
-*   SPI1_SCK  : PA5  (無衝突)
-*   SPI1_MISO : PA6  (無衝突)
-*   SPI1_MOSI : PA7  (無衝突)
+*   SPI1_NSS  : PA4  
+*   SPI1_SCK  : PA5  
+*   SPI1_MISO : PA6  
+*   SPI1_MOSI : PA7  
 */
 
 void SPI1_GPIOInits(void)
@@ -47,8 +47,8 @@ void SPI1_Inits(void)
     SPI1handle.SPIConfig.SPI_DeviceMode = SPI_DEVICE_MODE_MASTER;
     SPI1handle.SPIConfig.SPI_DFF = SPI_DFF_8BITS;
     SPI1handle.SPIConfig.SPI_SclkSpeed = SPI_SCLK_SPEED_DIV2;
-    SPI1handle.SPIConfig.SPI_CPHA = SPI_CPHA_HIGH;
-    SPI1handle.SPIConfig.SPI_CPOL = SPI_CPOL_HIGH;
+    SPI1handle.SPIConfig.SPI_CPHA = SPI_CPHA_LOW;
+    SPI1handle.SPIConfig.SPI_CPOL = SPI_CPOL_LOW;
     SPI1handle.SPIConfig.SPI_SSM = SPI_SSM_EN;
 
     SPI_Init(&SPI1handle);
@@ -68,7 +68,7 @@ int main(void)
     /* 4. 啟用 SPI */
     SPI_PeripheralControl(SPI1, ENABLE);
 
-    /* 5. 發送數據 */
+    /* 5. 發送資料 */
     char data[] = "Test";
     SPI_SendData(SPI1, (uint8_t*)data, strlen(data));
 

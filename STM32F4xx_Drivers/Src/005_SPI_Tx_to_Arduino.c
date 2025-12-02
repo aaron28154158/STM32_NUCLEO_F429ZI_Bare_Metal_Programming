@@ -5,13 +5,13 @@ void delay(void)
 	for(uint32_t i = 0; i < 500000; i++);
 }
 
-/* ==================== SPI1 引腳配置（無衝突）==================== */
+/* ==================== SPI1 引腳配置 ==================== */
 /*
 *   Alternate Function Mode : AF05
-*   SPI1_NSS  : PA4  (無衝突)
-*   SPI1_SCK  : PA5  (無衝突)
-*   SPI1_MISO : PA6  (無衝突)
-*   SPI1_MOSI : PA7  (無衝突)
+*   SPI1_NSS  : PA4  
+*   SPI1_SCK  : PA5  
+*   SPI1_MISO : PA6  
+*   SPI1_MOSI : PA7  
 */
 
 void SPI1_GPIOInits(void)
@@ -97,7 +97,7 @@ int main(void)
 
         SPI_SendData(SPI1, &dataLen, 1);
 
-        /* 4. 發送數據 */
+        /* 4. 發送資料 */
         SPI_SendData(SPI1, (uint8_t*)data, strlen(data));
 
         /* 5. 等待傳輸完成 */

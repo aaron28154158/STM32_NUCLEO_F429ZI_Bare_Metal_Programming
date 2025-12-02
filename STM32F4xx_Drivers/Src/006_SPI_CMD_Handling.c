@@ -43,8 +43,8 @@
 #define LED_PIN       9
 
 /* ==================== ACK/NACK 定義 ==================== */
-#define ACK_BYTE      0xF5    /* 從機確認碼 */
-#define NACK_BYTE     0xA5    /* 從機否定碼 */
+#define ACK_BYTE      0xF5    /* 從機 ACK */
+#define NACK_BYTE     0xA5    /* 從機 NACK */
 
 /* ==================== Dummy Data ==================== */
 #define DUMMY_WRITE   0xFF    /* 用於產生時脈以接收資料 */
@@ -65,7 +65,6 @@ static void command_id_read(uint8_t CommandCode);
 
 /*****************************************************************
  * 簡單的軟體延遲
- * 實際延遲時間取決於系統時脈頻率
  *****************************************************************/
 static void delay_80ms(void)
 {
@@ -116,13 +115,6 @@ static void SPI1_GPIOInits(void)
 
 /*****************************************************************
  * 初始化 SPI1 為主機模式
- * 配置：
- * - Master mode (主機模式)
- * - Full-Duplex (全雙工)
- * - 8-bit data frame
- * - Clock: PCLK/8
- * - CPOL=0, CPHA=0 (Mode 0)
- * - Hardware NSS management (SSOE enabled)
  *****************************************************************/
 static void SPI1_Inits(void)
 {
@@ -143,7 +135,6 @@ static void SPI1_Inits(void)
 
 /*****************************************************************
  * 初始化按鈕 GPIO (PC13) 為輸入模式
- * STM32F429ZI Nucleo 板載按鈕連接在 PC13
  * 按下時為高電位，釋放時為低電位
  *****************************************************************/
 static void GPIO_BUTTON_Init(void)
@@ -168,12 +159,6 @@ static uint8_t SPI_VerifyResponse(uint8_t ACK_byte)
 
 /*****************************************************************
  * LED 控制命令處理函數
- * 傳輸流程：
- * 1. 發送命令碼 0x50
- * 2. 接收 dummy 清除 RXNE
- * 3. 發送 dummy 0xFF 產生時脈
- * 4. 接收 ACK (0xF5)
- * 5. 若 ACK 正確，發送 LED 引腳號 + 狀態
  *****************************************************************/
 static void command_led_control(uint8_t CommandCode)
 {
@@ -211,11 +196,6 @@ static void command_led_control(uint8_t CommandCode)
 
 /*****************************************************************
  * 感測器讀取命令處理函數
- * 傳輸流程：
- * 1. 發送命令碼 0x51
- * 2. 接收 ACK
- * 3. 發送類比引腳編號
- * 4. 接收類比值 (0~255)
  *****************************************************************/
 static void command_sensor_read(uint8_t CommandCode)
 {
@@ -344,7 +324,6 @@ static void command_cmd_print(uint8_t CommandCode)
 
 /*****************************************************************
  * ID 讀取命令處理函數
- * (修正版：使用迴圈進行單字節交換)
  *****************************************************************/
 static void command_id_read(uint8_t CommandCode)
 {
@@ -382,13 +361,6 @@ static void command_id_read(uint8_t CommandCode)
 }
 
 
-/*****************************************************************
- * 主程式入口
- * 流程：
- * 1. 初始化按鈕、SPI GPIO、SPI 外設
- * 2. 啟用硬體 NSS 輸出 (SSOE)
- * 3. 等待按鈕按下，依序執行不同指令
- *****************************************************************/
 int main(void)
 {
     /* ==================== 初始化階段 ==================== */
@@ -451,7 +423,7 @@ int main(void)
         SPI_PeripheralControl(SPI1, DISABLE);
 
 
-        /* ========== 測試 5: ID Read (已修正迴圈部分) ========== */
+        /* ========== 測試 5: ID Read ========== */
         /* 等待按鈕按下 */
         while(!GPIO_ReadFromInputPin(GPIOC, GPIO_PIN_NO_13));
         delay_400ms();
