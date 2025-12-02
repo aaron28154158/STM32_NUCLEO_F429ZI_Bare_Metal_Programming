@@ -11,10 +11,9 @@ static void I2C_MasterHandleTxEInterrupt(I2C_Handle_t *pI2CHandle);
 /* ==================== 1. 初始化與重置 ==================== */
 /*****************************************************************
  * @fn     I2C_Init
- * @brief  根據 pI2CHandle 中的設定來初始化指定的 I2C 外設
+ * @brief  根據 pI2CHandle 中的設定來初始化指定的 I2C 周邊
  * @param  pI2CHandle: 指向 I2C handle 結構體的指標，包含配置參數
  * @return void
- * @note   使用前必須先呼叫 I2C_PeriClockControl() 啟用時脈
  *****************************************************************/
 void I2C_Init(I2C_Handle_t *pI2CHandle)
 {
@@ -40,7 +39,7 @@ void I2C_Init(I2C_Handle_t *pI2CHandle)
 	 */
 	tempreg = 0;
 	tempreg |= (pI2CHandle->I2C_Config.I2C_DeviceAddress << 1);
-	tempreg |= (1 << 14);  /* 參考手冊提到：Bit 14 保留位必須由軟體設定為 1 */
+	tempreg |= (1 << 14);  /* 參考手冊：Bit 14 保留位必須由軟體設定為 1 */
 	pI2CHandle->pI2Cx->OAR1 = tempreg;
 
 	/* ==================== 4. 配置 SCL 時脈頻率（CCR 暫存器）==================== */
@@ -166,7 +165,7 @@ void I2C_PeriClockControl(I2C_RegDef_t *pI2Cx, uint8_t EnorDi)
 	}
 }
 
-/* ==================== 3. 主機模式數據發送（阻塞式）==================== */
+/* ==================== 3. 主機模式資料發送（阻塞式）==================== */
 void I2C_MasterSendData(I2C_Handle_t *pI2CHandle, uint8_t *pTxBuffer, uint8_t Len, uint8_t SlaveAddr, uint8_t Sr)
 {
     I2C_GenerateStartCondition(pI2CHandle->pI2Cx);
@@ -197,7 +196,7 @@ void I2C_MasterSendData(I2C_Handle_t *pI2CHandle, uint8_t *pTxBuffer, uint8_t Le
 }
 
 
-/* ==================== 4. 主機模式數據接收（阻塞式）==================== */
+/* ==================== 4. 主機模式資料接收（阻塞式）==================== */
 void I2C_MasterReceiveData(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, uint8_t Len, uint8_t SlaveAddr, uint8_t Sr)
 {
     I2C_GenerateStartCondition(pI2CHandle->pI2Cx);
@@ -214,14 +213,16 @@ void I2C_MasterReceiveData(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, uint8_t
 
         I2C_ClearADDRFlag(pI2CHandle->pI2Cx);
 
+        while(!I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_RxNE));
+
         if(Sr == I2C_DISABLE_SR)
         {
             I2C_GenerateStopCondition(pI2CHandle->pI2Cx);
         }
 
-        while(!I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_RxNE));
-
         *pRxBuffer = pI2CHandle->pI2Cx->DR;
+
+        return;
     }
     else
     {
@@ -253,7 +254,7 @@ void I2C_MasterReceiveData(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, uint8_t
 }
 
 
-/* ==================== 5. 主機模式數據發送（中斷式）==================== */
+/* ==================== 5. 主機模式資料發送（中斷式）==================== */
 uint8_t I2C_MasterSendDataIT(I2C_Handle_t *pI2CHandle, uint8_t *pTxBuffer, uint8_t Len, uint8_t SlaveAddr, uint8_t Sr)
 {
     uint8_t busystate = pI2CHandle->TxRxState;
@@ -279,7 +280,7 @@ uint8_t I2C_MasterSendDataIT(I2C_Handle_t *pI2CHandle, uint8_t *pTxBuffer, uint8
 }
 
 
-/* ==================== 6. 主機模式數據接收（中斷式）==================== */
+/* ==================== 6. 主機模式資料接收（中斷式）==================== */
 uint8_t I2C_MasterReceiveDataIT(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, uint8_t Len, uint8_t SlaveAddr, uint8_t Sr)
 {
     uint8_t busystate = pI2CHandle->TxRxState;
@@ -345,41 +346,19 @@ uint8_t I2C_SlaveReceiveData(I2C_RegDef_t *pI2C)
 /* ==================== 8. 中斷設定與中斷處理 ==================== */
 void I2C_IRQInterruptConfig(uint8_t IRQNumber, uint8_t EnorDi)
 {
-    /* 使用巨集計算暫存器索引和位元位置 */
+    /* 計算暫存器索引和位元位置 */
     uint8_t reg_index = NVIC_REG_INDEX(IRQNumber);  /* 0, 1, 或 2 */
     uint8_t bit_pos = NVIC_BIT_POS(IRQNumber);      /* 0-31 */
 
     if(EnorDi == ENABLE)
     {
         /* ==================== 啟用中斷 (ISER) ==================== */
-        if(reg_index == 0)
-        {
-            *NVIC_ISER0 |= (1 << bit_pos);
-        }
-        else if(reg_index == 1)
-        {
-            *NVIC_ISER1 |= (1 << bit_pos);
-        }
-        else if(reg_index == 2)
-        {
-            *NVIC_ISER2 |= (1 << bit_pos);
-        }
+        *(NVIC_ISER0 + reg_index) |= (1 << bit_pos);
     }
     else
     {
         /* ==================== 禁用中斷 (ICER) ==================== */
-        if(reg_index == 0)
-        {
-            *NVIC_ICER0 |= (1 << bit_pos);
-        }
-        else if(reg_index == 1)
-        {
-            *NVIC_ICER1 |= (1 << bit_pos);
-        }
-        else if(reg_index == 2)
-        {
-            *NVIC_ICER2 |= (1 << bit_pos);
-        }
+        *(NVIC_ICER0 + reg_index) |= (1 << bit_pos);
     }
 }
 
@@ -428,19 +407,21 @@ void I2C_EV_IRQHandling(I2C_Handle_t *pI2CHandle)
             return;
         }
 
-        if(pI2CHandle->TxRxState == I2C_BUSY_IN_TX)
+        if(pI2CHandle->TxRxState != I2C_BUSY_IN_TX)
         {
-            if(pI2CHandle->TxLen == 0)
+            return;
+        }
+
+        if(pI2CHandle->TxLen == 0)
+        {
+            if(pI2CHandle->Sr == I2C_DISABLE_SR)
             {
-                if(pI2CHandle->Sr == I2C_DISABLE_SR)
-                {
-                    I2C_GenerateStopCondition(pI2CHandle->pI2Cx);
-                }
-
-                I2C_CloseSendData(pI2CHandle);
-
-                I2C_ApplicationEventCallback(pI2CHandle, I2C_EV_TX_CMPLT);
+                I2C_GenerateStopCondition(pI2CHandle->pI2Cx);
             }
+
+            I2C_CloseSendData(pI2CHandle);
+
+            I2C_ApplicationEventCallback(pI2CHandle, I2C_EV_TX_CMPLT);
         }
     }
 
