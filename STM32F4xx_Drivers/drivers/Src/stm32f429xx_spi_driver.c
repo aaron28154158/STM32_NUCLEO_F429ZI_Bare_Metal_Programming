@@ -63,6 +63,7 @@ void SPI_Init(SPI_Handle_t *pSPIHandle)
 }
 
 
+
 /*****************************************************************
  * @fn     SPI_DeInit
  * @brief  將指定的 SPI 周邊重置為預設值
@@ -147,7 +148,7 @@ void SPI_ReceiveData(SPI_RegDef_t *pSPIx, uint8_t *pRxBuffer, uint32_t Len)
         /* ========== 1. 等待 RXNE 標誌位（接收緩衝區非空）========== */
         while(SPI_GetFlagStatus(pSPIx, SPI_FLAG_RXNE) == FLAG_RESET);
 
-        /* ========== 2. 根據資料幀格式接收資料 ========== */
+        /* ========== 2. 根據資料格式接收資料 ========== */
         if((pSPIx->CR1 & (1 << SPI_CR1_DFF)))
         {
             /* 16 位元模式：接收 2 個 byte */
@@ -278,7 +279,7 @@ void SPI_IRQInterruptConfig(uint8_t IRQNumber, uint8_t EnorDi)
 {
     /* 計算暫存器索引和位元位置 */
     uint8_t reg_index = NVIC_REG_INDEX(IRQNumber);  /* 0, 1, 或 2 */
-    uint8_t bit_pos = NVIC_BIT_POS(IRQNumber);      /* 0-31 */
+    uint8_t bit_pos = NVIC_BIT_POS(IRQNumber);      /* 0 - 31 */
 
     if(EnorDi == ENABLE)
     {
@@ -535,7 +536,7 @@ void SPI_SSIConfig(SPI_RegDef_t *pSPIx, uint8_t EnorDi)
  * @param  EnorDi: ENABLE 或 DISABLE
  * @return void
  * @note   - 當 SSM=0 且 SSOE=1 時，NSS 引腳由硬體自動管理
- *         - Master 模式：NSS 輸出低電平
+ *         - Master 模式：NSS 輸出低電位
  *         - Slave 模式：NSS 為輸入
  *****************************************************************/
 void SPI_SSOEConfig(SPI_RegDef_t *pSPIx, uint8_t EnorDi)
@@ -623,7 +624,7 @@ void SPI_ClearOVRFlag(SPI_RegDef_t *pSPIx)
 
 /*****************************************************************
  * @fn     SPI_ApplicationEventCallback
- * @brief  SPI 事件回呼函數
+ * @brief  SPI 事件回調函數
  * @param  pSPIHandle: 指向 SPI_Handle_t 結構體的指標
  * @param  AppEv: 事件類型 
  * @return void
