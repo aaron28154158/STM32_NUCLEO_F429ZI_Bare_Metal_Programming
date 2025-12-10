@@ -22,6 +22,7 @@
 
 ## UART 電路接線圖
 ![USART_Circuit_3](https://github.com/user-attachments/assets/daf5bd5f-4500-4a68-b5e9-c2e9c13011db)
+![Uart](https://github.com/user-attachments/assets/497675f7-e1b2-4897-91ce-78aedea8c743)
 
 ## RTC LCD 電路接線圖
 ![RTC_LCD_Circuit_3](https://github.com/user-attachments/assets/7ae46a1c-7cd2-4801-8943-1501fc7194ff)
